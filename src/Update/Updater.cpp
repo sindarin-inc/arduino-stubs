@@ -1,6 +1,5 @@
 #include "Update.h"
-#include "sindarin-debug.h"
-#include "Misc/Platform.hpp"
+#include "../log.h"
 #include "esp_spi_flash.h"
 #include "esp_ota_ops.h"
 #include "esp_image_format.h"
@@ -86,7 +85,7 @@ void UpdateClass::_reset() {
     _command = U_FLASH;
 
     if(_ledPin != -1) {
-      digitalWrite(_ledPin, !_ledOn); // off
+      //digitalWrite(_ledPin, !_ledOn); // off
     }
 }
 

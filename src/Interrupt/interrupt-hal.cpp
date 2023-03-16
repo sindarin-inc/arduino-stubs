@@ -3,7 +3,7 @@
 #include "driver/gpio.h"
 #include <stdint.h>
 #include <stdlib.h>
-#include "sindarin-debug.h"
+#include "../log.h"
 
 extern "C" {
 
