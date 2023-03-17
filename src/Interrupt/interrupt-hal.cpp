@@ -14,7 +14,7 @@ typedef struct {
     void* arg;
     bool functional;
 } InterruptHandle_t;
-static InterruptHandle_t __pinInterruptHandlers[SOC_GPIO_PIN_COUNT] = {0,};
+static InterruptHandle_t __pinInterruptHandlers[SOC_GPIO_PIN_COUNT] = {0,nullptr,false};
 
 extern void cleanupFunctional(void* arg);
 
