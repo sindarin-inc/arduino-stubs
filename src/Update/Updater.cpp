@@ -1,8 +1,8 @@
 #include "Update.h"
 #include "../log.h"
-#include "esp_spi_flash.h"
-#include "esp_ota_ops.h"
-#include "esp_image_format.h"
+#include <spi_flash_mmap.h>
+#include <esp_ota_ops.h>
+#include <esp_image_format.h>
 
 static const char * _err2str(uint8_t _error){
     if(_error == UPDATE_ERROR_OK){
