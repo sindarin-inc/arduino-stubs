@@ -54,7 +54,8 @@ bool UpdateClass::_enablePartition(const esp_partition_t* partition){
     if(!partition){
         return false;
     }
-    return !esp_partition_write(partition, 0, (uint32_t*) _skipBuffer, ENCRYPTED_BLOCK_SIZE);
+    return true;
+    // return !esp_partition_write(partition, 0, (uint32_t*) _skipBuffer, ENCRYPTED_BLOCK_SIZE);
 }
 
 UpdateClass::UpdateClass()
@@ -182,24 +183,24 @@ void UpdateClass::abort(){
 bool UpdateClass::_writeBuffer(){
     //first bytes of new firmware
     uint8_t skip = 0;
-    if(!_progress && _command == U_FLASH){
-        //check magic
-        if(_buffer[0] != ESP_IMAGE_HEADER_MAGIC){
-            _abort(UPDATE_ERROR_MAGIC_BYTE);
-            return false;
-        }
+    // if(!_progress && _command == U_FLASH){
+    //     //check magic
+    //     if(_buffer[0] != ESP_IMAGE_HEADER_MAGIC){
+    //         _abort(UPDATE_ERROR_MAGIC_BYTE);
+    //         return false;
+    //     }
 
-        //Stash the first 16 bytes of data and set the offset so they are
-        //not written at this point so that partially written firmware
-        //will not be bootable
-        skip = ENCRYPTED_BLOCK_SIZE;
-        _skipBuffer = (uint8_t*)malloc(skip);
-        if(!_skipBuffer){
-            log_e("malloc failed");
-        return false;
-        }
-        memcpy(_skipBuffer, _buffer, skip);
-    }
+    //     //Stash the first 16 bytes of data and set the offset so they are
+    //     //not written at this point so that partially written firmware
+    //     //will not be bootable
+    //     skip = ENCRYPTED_BLOCK_SIZE;
+    //     _skipBuffer = (uint8_t*)malloc(skip);
+    //     if(!_skipBuffer){
+    //         log_e("malloc failed");
+    //         return false;
+    //     }
+    //     memcpy(_skipBuffer, _buffer, skip);
+    // }
     if (!_progress && _progress_callback) {
         _progress_callback(0, _size);
     }
@@ -264,6 +265,19 @@ bool UpdateClass::setMD5(const char * expected_md5){
     }
     _target_md5 = expected_md5;
     return true;
+}
+
+void UpdateClass::recalculateMD5(){
+    // Use esp_partition_read to go through the whole paritition and add it to the md5
+    for (size_t i = 0; i < _size; i += SPI_FLASH_SEC_SIZE) {
+        size_t toRead = std::min((size_t)(_size - i), (size_t)SPI_FLASH_SEC_SIZE);
+        if (esp_partition_read(_partition, i, _buffer, toRead) != ESP_OK) {
+            _abort(UPDATE_ERROR_READ);
+            log_e("Error: %u reading pos %u size %u", getError(), i, toRead);
+            return;
+        }
+        _md5.add(_buffer, toRead);
+    }
 }
 
 bool UpdateClass::end(bool evenIfRemaining){

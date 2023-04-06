@@ -75,6 +75,12 @@ class UpdateClass {
     bool setMD5(const char * expected_md5);
 
     /*
+      adds all _size bytes currently stored in the firmware partition into the MD5 calculation.
+      Useful if you want to decouple downloading from applying the update.
+    */
+    void recalculateMD5();
+
+    /*
       returns the MD5 String of the successfully ended firmware
     */
     std::string md5String(void){ return _md5.toString(); }
